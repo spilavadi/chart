@@ -41,23 +41,5 @@ describe("Dashboard.vue", () => {
   it("creates component", () => {
     expect(wrapper.text()).toMatch('');
   });
-
-  describe('select box',()=>{
-    it('should be present',()=>{
-      expect(wrapper.find('select').element).toBeTruthy();
-    });
-    it('should have empty first value',()=>{
-      expect(wrapper.findAll('option').at(0).element.value).toEqual('');
-    });
-    it('should have test as second value',()=>{
-      expect(wrapper.findAll('option').at(1).element.value).toEqual('test');
-    });
-  });
-
-  describe('chart',()=>{
-    it('should be present',()=>{
-      expect(wrapper.find('.line-chart').element).toBeTruthy();
-    });
-  });
   
 });

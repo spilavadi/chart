@@ -1,58 +1,43 @@
 <template>
-  <div v-if="!errored">
-    <select v-model="selectedType">
-      <option value="" disabled selected>Select your option</option>
-      <option v-for="(item, index) in graphTypes" :key="index" :value="item.value" >{{item.label}}</option>
-    </select>
-    <Chart type="LineChart" :options="graphOptions" :data="graphData" class="line-chart" />
+  <div>
+      <SalesLineChart :data="getSalesData('1')" />
+      <SalesLineChart :data="getSalesData('2')" />
   </div>
-  <div v-else>Something went wrong. Please try again.</div>
 </template>
 
 <script>
-import Chart from "../shared/charts/Chart";
+import SalesLineChart from "../shared/charts/SalesLineChart";
 import apiService from '../shared/services/api-service';
+import Vue from "vue";
 
 export default {
   name: "Dashboard",
   props: [],
   components:{
-    Chart
+    SalesLineChart
   },
   data(){
     return {
-      selectedType:'',
-      errored: false
+      salesData: {}
     }
   },
   mounted(){
-    apiService.getData().then(resp=>this.$store.commit('SET_GRAPH_DATA', resp.data), ()=>this.errored=true);
+    Promise.all([apiService.getData('1'), apiService.getData('2')]).then(results=>{
+      if(Array.isArray(results) && results.length>1){
+        Vue.set(this.salesData, '1', results[0].data);
+        Vue.set(this.salesData, '2', results[1].data);
+      }
+    });
   },
+
   computed:{
     /**
      * gives the list of graphtypes
      */
-    graphTypes(){
-      return this.$store.getters.getGraphKeys;
-    },
-
-    /**
-     * gives the graph data
-     */
-    graphData() {
-      return this.$store.getters.getGraphData(this.selectedType);
-    },
-
-    /**
-     * gives the options required for chart
-     */
-    graphOptions(){
-      return {
-        title: this.selectedType,
-        curveType: 'none',
-        legend: { position: 'top', alignment:'center' },
-        pointSize: 3
-      };
+    getSalesData(){
+      return (type)=>{
+        return type in this.salesData? this.salesData[type]: {};
+      }
     }
   }
 };
